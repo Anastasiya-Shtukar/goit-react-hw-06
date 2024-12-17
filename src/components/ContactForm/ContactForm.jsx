@@ -1,7 +1,9 @@
 import css from "./ContactForm.module.css";
-import { Formik, Form, Field } from "formik";
-import { v4 as uuidv4 } from "uuid";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useDispatch, useSelector } from "react-redux";
+import { addContact } from "../../redux/actions";
+import { getContacts } from "../../redux/selectors";
 
 const ContactSchema = Yup.object().shape({
   name: Yup.string()
@@ -10,16 +12,17 @@ const ContactSchema = Yup.object().shape({
     .required("Required"),
 });
 
-const ContactForm = ({ onAdd, name }) => {
+const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+
+  const contactName = contacts.map((contact) => contact.name);
+
   const handleSubmit = (values, actions) => {
-    if (name.includes(values.name)) {
+    if (contactName.includes(values.name)) {
       alert("Oops, looks like contact already exists");
     } else {
-      onAdd({
-        id: uuidv4(),
-        name: values.name,
-        number: values.number,
-      });
+      dispatch(addContact(values.name, values.number));
     }
 
     actions.resetForm();
@@ -36,6 +39,7 @@ const ContactForm = ({ onAdd, name }) => {
           <p>Name</p>
           <Field type="text" name="name" className={css.input} />
         </div>
+        <ErrorMessage name="name" as="span" className={css.error} />
         <div>
           <p>Number</p>
           <Field type="number" name="number" className={css.input} />

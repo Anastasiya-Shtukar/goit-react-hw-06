@@ -17,3 +17,7 @@
 .input {
   width: 240px;
 }
+
+.error {
+  color: red;
+}
